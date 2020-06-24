@@ -27,6 +27,7 @@ import com.adobe.cq.commerce.core.search.models.Pager;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
+import com.adobe.cq.commerce.core.search.models.SorterKey;
 
 public class SearchResultsSetImpl implements SearchResultsSet {
 
@@ -35,6 +36,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     private List<ProductListItem> productListItems = new ArrayList<>();
     private List<SearchAggregation> searchAggregations = new ArrayList<>();
     private Pager pager;
+    private SorterImpl sorter = new SorterImpl();
 
     @Nonnull
     @Override
@@ -67,6 +69,12 @@ public class SearchResultsSetImpl implements SearchResultsSet {
             pager = new PagerImpl(getAppliedQueryParameters(), getTotalPages(), getSearchOptions().getCurrentPage());
         }
         return pager;
+    }
+
+    @Nonnull
+    @Override
+    public SorterImpl getSorter() {
+        return sorter;
     }
 
     private int getTotalPages() {
@@ -107,8 +115,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
         return searchAggregations
             .stream()
             .filter(searchAggregation -> !searchAggregation.getAppliedFilterValue().isPresent()
-                && searchAggregation.getFilterable()
-                && !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+                && searchAggregation.getFilterable())
             .collect(Collectors.toList());
     }
 
@@ -117,8 +124,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     public List<SearchAggregation> getAppliedAggregations() {
         return searchAggregations
             .stream()
-            .filter(searchAggregation -> searchAggregation.getAppliedFilterValue().isPresent()
-                && !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+            .filter(searchAggregation -> searchAggregation.getAppliedFilterValue().isPresent())
             .collect(Collectors.toList());
     }
 
@@ -130,5 +136,11 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     @Override
     public boolean hasPagination() {
         return getTotalPages() > 1;
+    }
+
+    @Override
+    public boolean hasSorting() {
+        List<SorterKey> keys = getSorter().getKeys();
+        return keys != null && !keys.isEmpty();
     }
 }
