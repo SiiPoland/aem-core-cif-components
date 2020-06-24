@@ -230,7 +230,7 @@ describe('UserContext test', () => {
 
         // normally the browser just removes a cookie with Max-Age=0
         //...but we're not in a browser
-        const expectedCookieValue = 'cif.userToken=;path=/; domain=localhost;Max-Age=0';
+        const expectedCookieValue = 'cif.userToken=; Max-Age=0; Domain=localhost; Path=/';
         expect(document.cookie).toEqual(expectedCookieValue);
     });
 });
