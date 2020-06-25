@@ -1,8 +1,15 @@
 .root {
     display: grid;
     gap: 1rem;
-    padding: 0.0rem;
+    padding: 0rem;
     width: 100%;
+}
+.root table tbody tr th {
+    padding: 10px;
+}
+
+.root table tbody tr td {
+    padding: 10px;
 }
 
 .message {
