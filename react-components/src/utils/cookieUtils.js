@@ -11,6 +11,9 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+
+import Cookies from 'universal-cookie';
+
 export const checkCookie = cookieName => {
     return document.cookie.split(';').filter(item => item.trim().startsWith(`${cookieName}=`)).length > 0;
 };
@@ -18,4 +21,11 @@ export const checkCookie = cookieName => {
 export const cookieValue = cookieName => {
     let b = document.cookie.match(`(^|[^;]+)\\s*${cookieName}\\s*=\\s*([^;]+)`);
     return b ? b.pop() : '';
+};
+
+export const setCookie = (cookieName, cookieValue, age) => {
+    const cookie = new Cookies();
+    const domain = window.location.host.split(':')[0];
+    const maxAge = age !== undefined ? age : 3600;
+    cookie.set(cookieName, cookieValue, { path: '/', domain: domain, maxAge: maxAge });
 };

@@ -13,7 +13,7 @@
  ******************************************************************************/
 import { useEffect, useCallback } from 'react';
 import { useQuery } from '@apollo/react-hooks';
-import { checkCookie, cookieValue } from './cookieUtils';
+import { checkCookie, cookieValue, setCookie } from './cookieUtils';
 import { useApolloClient } from '@apollo/react-hooks';
 
 import QUERY_COUNTRIES from '../queries/query_countries.graphql';
@@ -35,8 +35,7 @@ export const useCookieValue = cookieName => {
     }
     let value = checkCookie(cookieName) ? cookieValue(cookieName) : '';
     const setCookieValue = (value, age) => {
-        const cookieSettings = `path=/; domain=${window.location.host};Max-Age=${age !== undefined ? age : 3600}`;
-        document.cookie = `${cookieName}=${value};${cookieSettings}`;
+        setCookie(cookieName, value, age);
     };
 
     return [value, setCookieValue];
