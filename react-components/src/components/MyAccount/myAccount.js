@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 import React from 'react';
-import { LogOut as SignOutIcon, Lock as PasswordIcon, List as OrdersIcon} from 'react-feather';
+import { LogOut as SignOutIcon, Lock as PasswordIcon, List as OrdersIcon } from 'react-feather';
 import { useTranslation } from 'react-i18next';
 
 import AccountLink from './accountLink';
@@ -61,7 +61,7 @@ const MyAccount = props => {
                 </AccountLink>
                 <AccountLink onClick={showCustomerOrders}>
                     <OrdersIcon size={18} />
-                    {t('account:customer-orders', 'Orders')}
+                    {t('account:customer-orders', 'My Orders')}
                 </AccountLink>
                 <AccountLink onClick={handleSignOut}>
                     <SignOutIcon size={18} />

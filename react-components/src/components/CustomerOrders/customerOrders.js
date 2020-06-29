@@ -27,7 +27,7 @@ import TableRow from '@material-ui/core/TableRow';
 
 const CustomerOrders = props => {
     const [t] = useTranslation(['account']);
-    const { data: customerOrdersData } = useQuery(QUERY_CUSTOMER_ORDERS);
+    const { data: customerOrdersData, error: errors } = useQuery(QUERY_CUSTOMER_ORDERS);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage] = React.useState(10);
 
@@ -35,14 +35,22 @@ const CustomerOrders = props => {
         setPage(newPage);
     };
 
-    if (customerOrdersData) {
+    if (errors) {
+        return (
+            <span className={classes.error} aria-label="Customer Orders">
+                There was an error retrieving order data.
+            </span>
+        );
+    }
+
+    if (customerOrdersData && customerOrdersData.customerOrders.items.length) {
         return (
             <Paper className={classes.root}>
                 <TableContainer component={Paper}>
-                    <Table className={classes.table} aria-label="simple table">
+                    <Table className={classes.table} aria-label="Customer Orders">
                         <TableHead>
                             <TableRow>
-                                <TableCell>{t('customer-order-number', 'Order #')}</TableCell>
+                                <TableCell>{t('customer-order-number', 'Order Number')}</TableCell>
                                 <TableCell align="right">{t('customer-order-created-at', 'Date')}</TableCell>
                                 <TableCell align="right">{t('customer-order-grand-total', 'Total')}</TableCell>
                                 <TableCell align="right">{t('customer-order-status', 'Status')}</TableCell>
@@ -50,13 +58,14 @@ const CustomerOrders = props => {
                         </TableHead>
                         <TableBody>
                             {customerOrdersData.customerOrders.items
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map(row => (
                                     <TableRow key={row.order_number}>
                                         <TableCell component="th" scope="row">
                                             {row.order_number}
                                         </TableCell>
                                         <TableCell align="right">{row.created_at.substring(0, 10)}</TableCell>
-                                        <TableCell align="right">{row.grand_total}</TableCell>
+                                        <TableCell align="right">{row.grand_total}$</TableCell>
                                         <TableCell align="right">{row.status}</TableCell>
                                     </TableRow>
                                 ))}
@@ -70,13 +79,17 @@ const CustomerOrders = props => {
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onChangePage={handleChangePage}
-                    labelRowsPerPage={""}
+                    labelRowsPerPage={''}
                 />
             </Paper>
         );
     } else {
-        return "";
+        return (
+            <span className={classes.message} aria-label="Customer no Orders">
+                You have placed no orders yet.
+            </span>
+        );
     }
-}
+};
 
 export default CustomerOrders;
