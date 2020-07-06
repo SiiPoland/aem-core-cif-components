@@ -24,6 +24,24 @@
 
     const SEARCHBAR_TOGGLE = '.searchTrigger__root';
 
+    const SEARCH_SUGGESTIONS_QUERY = `{
+        products(filter: {
+          name: {
+            match: "phrase"
+          }
+        }, pageSize: 5) {
+          items {
+            name
+          }
+        }
+    }`;
+
+    const SUGGESTIONS_ENDPOINT = 'https://aem-demo.ecommerce-sii.com/graphql';
+
+    const SUGGESTIONS_TIMEOUT = 700;
+
+    var _timeoutId = 0;
+
     class Searchbar {
         constructor(props) {
             this._classes = {
@@ -32,6 +50,7 @@
 
             this._searchBarRoot = document.querySelector(Searchbar.selectors.searchBarRoot);
             this._searchBox = this._searchBarRoot.querySelector(Searchbar.selectors.searchBox);
+            this._searchSuggestions = this._searchBarRoot.querySelector(Searchbar.selectors.searchSuggestions);
 
             let stateObject = {};
             if (props && props.params) {
@@ -105,16 +124,62 @@
             this._searchBarRoot.classList.add(this._classes.open);
             this._searchBox.focus();
             this._registerSearchBoxListener();
+            this._registerSuggestionsListener();
         }
 
         _hide() {
             this._searchBarRoot.classList.remove(this._classes.open);
+            this._unregisterSuggestionsListener();
+        }
+
+        _registerSuggestionsListener() {
+            this._searchBox.addEventListener('keydown', _executeQueryAfterTimeout);
+        }
+
+        _unregisterSuggestionsListener() {
+            this._searchBox.removeEventListener('keydown', _executeQueryAfterTimeout);
+        }
+
+        _executeQueryAfterTimeout() {
+            clearTimeout(this._timeoutId);
+            if (this._searchBox.value !== null && this._searchBox.value !== "") {
+                this._timeoutId = setTimeout(_fetchSearchSuggestions, SUGGESTIONS_TIMEOUT);
+            }
+        }
+
+        _fetchSearchSuggestions() {
+            $.ajax({url: SUGGESTIONS_ENDPOINT,
+                contentType: 'application/json',
+                type:'POST',
+                data: () => {
+                    this._searchSuggestions.textContent = '';
+                    _prepareQuery()
+                },
+                success: _displaySearchSuggestions(result)
+            });
+        }
+
+        _displaySearchSuggestions(result) {
+            result.data.products.forEach((country) => {
+                var suggestionItem = document.createElement('div');
+                suggestionItem.innerHTML = country.name;
+                this._searchSuggestions.appendChild(suggestionItem);
+                suggestionItem.addEventListener('click', (e) => {
+                    this._searchBox.value = e.target.innerHTML;
+                    this._searchSuggestions.textContent = '';
+                });
+            })
+        }
+
+        _prepareQuery() {
+            return JSON.stringify({ query: SEARCH_SUGGESTIONS_QUERY.replace("phrase", this._searchBox.value) });
         }
     }
 
     Searchbar.selectors = {
         searchBarRoot: "div[role='search']",
-        searchBox: "input[role='searchbox']"
+        searchBox: "input[role='searchbox']",
+        searchSuggestions: "div[role='searchSuggestions']"
     };
 
     function onDocumentReady() {
