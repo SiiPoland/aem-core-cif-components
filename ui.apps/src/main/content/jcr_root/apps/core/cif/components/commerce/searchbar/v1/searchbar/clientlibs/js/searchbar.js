@@ -117,33 +117,34 @@
                 this._showResetButton();
                 this._searchBox.removeEventListener('keydown', _handleKeyDown);
             };
+
+            const _enableSearchSuggestionsHandler = e => {
+                this._fetchSuggestionsAfterTimeout();
+            }
+
             this._searchBox.addEventListener('keydown', _handleKeyDown);
+            this._searchBox.addEventListener('input', _enableSearchSuggestionsHandler);
         }
 
         _show() {
             this._searchBarRoot.classList.add(this._classes.open);
             this._searchBox.focus();
             this._registerSearchBoxListener();
-            this._registerSuggestionsListener();
         }
 
         _hide() {
             this._searchBarRoot.classList.remove(this._classes.open);
-            this._unregisterSuggestionsListener();
+            this._disableSearchSuggestionsHandler();
         }
 
-        _registerSuggestionsListener() {
-            this._searchBox.addEventListener('keydown', _executeQueryAfterTimeout);
+        _disableSearchSuggestionsHandler() {
+            this._searchBox.removeEventListener('input', this._fetchSuggestionsAfterTimeout);
         }
 
-        _unregisterSuggestionsListener() {
-            this._searchBox.removeEventListener('keydown', _executeQueryAfterTimeout);
-        }
-
-        _executeQueryAfterTimeout() {
+        _fetchSuggestionsAfterTimeout() {
             clearTimeout(this._timeoutId);
             if (this._searchBox.value !== null && this._searchBox.value !== "") {
-                this._timeoutId = setTimeout(_fetchSearchSuggestions, SUGGESTIONS_TIMEOUT);
+                this._timeoutId = setTimeout(this._fetchSearchSuggestions, SUGGESTIONS_TIMEOUT);
             }
         }
 
@@ -152,23 +153,27 @@
                 contentType: 'application/json',
                 type:'POST',
                 data: () => {
-                    this._searchSuggestions.textContent = '';
-                    _prepareQuery()
+                    _resetSuggestions();
+                    return _prepareQuery();
                 },
-                success: _displaySearchSuggestions(result)
+                success: (result) => this._displaySearchSuggestions(result),
             });
         }
 
         _displaySearchSuggestions(result) {
-            result.data.products.forEach((country) => {
+            result.data.products.forEach((product) => {
                 var suggestionItem = document.createElement('div');
-                suggestionItem.innerHTML = country.name;
+                suggestionItem.innerHTML = product.name;
                 this._searchSuggestions.appendChild(suggestionItem);
                 suggestionItem.addEventListener('click', (e) => {
                     this._searchBox.value = e.target.innerHTML;
-                    this._searchSuggestions.textContent = '';
+                    _resetSuggestions();
                 });
-            })
+            });
+        }
+
+        _resetSuggestions() {
+            this._searchSuggestions.textContent = '';
         }
 
         _prepareQuery() {
