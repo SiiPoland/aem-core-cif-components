@@ -190,6 +190,7 @@
             this._resetSuggestions();
             this._searchBox.value = event.srcElement.innerText;
             this._lastPhrase = event.srcElement.innerText;
+            this._searchBox.focus();
         }
 
         _resetSuggestions() {
