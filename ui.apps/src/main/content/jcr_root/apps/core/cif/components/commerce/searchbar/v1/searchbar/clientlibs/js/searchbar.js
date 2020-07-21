@@ -24,7 +24,9 @@
 
     const SEARCHBAR_TOGGLE = '.searchTrigger__root';
 
-    const SUGGESTIONS_ENDPOINT = 'https://aem-demo.ecommerce-sii.com/graphql';
+    const MAGENTO_GRAPHQL_PATH = '/magento/graphql';
+
+    const SUGGESTIONS_ENDPOINT = window.location.origin + MAGENTO_GRAPHQL_PATH;
 
     const TIMEOUT_VALUE = 500;
 
