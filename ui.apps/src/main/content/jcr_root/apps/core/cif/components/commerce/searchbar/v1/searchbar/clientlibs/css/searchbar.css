@@ -1,0 +1,8 @@
+.searchBar__SearchAutocompleteWrapper {
+    background-color: whitesmoke;
+}
+
+.suggestionNode {
+    padding: 0.6rem 1rem 0.6rem 2.2rem;
+    border-bottom: 1px solid rgb(var(--venia-border));
+}
